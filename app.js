@@ -6,6 +6,7 @@ const gameData = [
 
 let editedPlayer = 0;
 let activePlayer = 0;
+let currentRound = 1;
 
 const players = [
   {
@@ -91,11 +92,6 @@ function startGame() {
   gameAreaEl.style.display = "block";
 }
 
-// TODO: Determine which li item was clicked and add symbol of active player in the field
-// TODO: Switch active player with a diff symbol
-// TODO: Disable field that is already occupied with symbol
-// TODO: Keep track of all selected fields
-
 function switchPlayer() {
   if (activePlayer === 0) {
     activePlayer = 1;
@@ -119,5 +115,57 @@ function selectGameField(event) {
 
   gameData[selectedRow][selectedCol] = activePlayer + 1;
 
+  const winnerId = checkForGameOver();
+
+  //   keep tabs on all occupied tiles
+  currentRound++;
   switchPlayer();
+}
+
+function checkForGameOver() {
+  // Row check for equality..go thru all rows and keep cols fixed
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameData[i][0] > 0 &&
+      gameData[i][0] === gameData[i][1] &&
+      gameData[i][1] === gameData[i][2]
+    ) {
+      return gameData[i][0];
+    }
+  }
+
+  // Col check for equality..go thru all cols and keep rows fixed
+  for (let i = 0; i < 3; i++) {
+    if (
+      gameData[0][i] > 0 &&
+      gameData[0][i] === gameData[1][i] &&
+      gameData[0][i] === gameData[2][i]
+    ) {
+      return gameData[0][i];
+    }
+  }
+
+  // diag check..top-left to bottom-right
+  if (
+    gameData[0][0] > 0 &&
+    gameData[0][0] === gameData[1][1] &&
+    gameData[1][1] === gameData[2][2]
+  ) {
+    return gameData[0][0];
+  }
+
+  // diag check..bottom-left to top-right
+  if (
+    gameData[2][0] > 0 &&
+    gameData[2][0] === gameData[1][1] &&
+    gameData[1][1] === gameData[0][2]
+  ) {
+    return gameData[2][0];
+  }
+
+  //   draw game
+  if (currentRound === 9) {
+    return -1;
+  }
+  return 0;
 }
