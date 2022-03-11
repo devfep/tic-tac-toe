@@ -7,6 +7,7 @@ const gameData = [
 let editedPlayer = 0;
 let activePlayer = 0;
 let currentRound = 1;
+let gameIsOver = false;
 
 const players = [
   {
@@ -29,8 +30,9 @@ const formEl = document.getElementById("form");
 const errorsOutputEl = document.getElementById("config-errors");
 const startGameBtnEl = document.getElementById("start-game-btn");
 const gameAreaEl = document.getElementById("active-game");
-const gameFieldElements = document.querySelectorAll("#game-board li");
+const gameBoardElements = document.querySelectorAll("#game-board li");
 const activePlayerNameEl = document.getElementById("active-player-name");
+const gameOverEl = document.getElementById("game-over");
 
 // event listeners
 player1EditBtnEl.addEventListener("click", openPlayerConfig);
@@ -39,8 +41,8 @@ cancelConfigBtnEl.addEventListener("click", closePlayerConfig);
 backdropEl.addEventListener("click", closePlayerConfig);
 formEl.addEventListener("submit", savePlayerConfig);
 startGameBtnEl.addEventListener("click", startGame);
-for (const gameFieldEl of gameFieldElements) {
-  gameFieldEl.addEventListener("click", selectGameField);
+for (const gameBoardEl of gameBoardElements) {
+  gameBoardEl.addEventListener("click", selectGameBoard);
 }
 
 // functions
@@ -82,11 +84,33 @@ function savePlayerConfig(event) {
   closePlayerConfig();
 }
 
+function resetGame() {
+  activePlayer = 0;
+  currentRound = 1;
+  gameIsOver = false;
+  gameOverEl.firstElementChild.innerHTML =
+    'You won, <span id="winner-name">PLAYER NAME</span>!';
+  gameOverEl.style.display = "none";
+
+  //   loop thru game data to reset
+  let gameBoardIndex = 0;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      gameData[i][j] = 0;
+      gameBoardElements[gameBoardIndex].textContent = "";
+      gameBoardElements[gameBoardIndex].classList.remove("disabled");
+      gameBoardIndex++;
+    }
+  }
+}
+
 function startGame() {
   if (players[0].name === "" || players[1].name === "") {
     alert("Please set custom name for both players");
     return;
   }
+
+  resetGame();
 
   activePlayerNameEl.textContent = players[activePlayer].name;
   gameAreaEl.style.display = "block";
@@ -101,7 +125,9 @@ function switchPlayer() {
   activePlayerNameEl.textContent = players[activePlayer].name;
 }
 
-function selectGameField(event) {
+function selectGameBoard(event) {
+  if (gameIsOver) return;
+
   const selectedCol = event.target.dataset.col - 1;
   const selectedRow = event.target.dataset.row - 1;
 
@@ -116,6 +142,10 @@ function selectGameField(event) {
   gameData[selectedRow][selectedCol] = activePlayer + 1;
 
   const winnerId = checkForGameOver();
+
+  if (winnerId !== 0) {
+    endGame(winnerId);
+  }
 
   //   keep tabs on all occupied tiles
   currentRound++;
@@ -168,4 +198,16 @@ function checkForGameOver() {
     return -1;
   }
   return 0;
+}
+
+function endGame(winnerId) {
+  gameIsOver = true;
+  gameOverEl.style.display = "block";
+
+  if (winnerId > 0) {
+    const winnerName = players[winnerId - 1].name;
+    gameOverEl.firstElementChild.firstElementChild.textContent = winnerName;
+  } else {
+    gameOverEl.firstElementChild.textContent = "It's a draw!";
+  }
 }
