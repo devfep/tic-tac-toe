@@ -98,6 +98,16 @@ body {
   padding: 0.4rem;
 }
 
+.error label {
+  color: red;
+}
+
+.error input {
+  border-color: red;
+  color: red;
+  background-color: rgb(255, 184, 184);
+}
+
 /* Game Config */
 
 #game-config {
@@ -146,7 +156,7 @@ body {
 #active-game {
   text-align: center;
   margin: 2rem 0 5rem 0;
-  /* display: none; */
+  display: none;
 }
 
 #game-over {
